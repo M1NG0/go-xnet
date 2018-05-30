@@ -93,8 +93,10 @@ func (srv *UDPServer) loop() (err error) {
 		copy(datagram, buf[:n])
 		select {
 		case <-conn.closed:
+			goto DONE
 		case conn.datagramChan <- datagram:
 		}
 	}
+DONE:
 	return nil
 }
