@@ -68,7 +68,10 @@ func (conn *UDPConn) loop() {
 	asyncDo(conn.writeLoop, conn.srv.wg)
 	asyncDo(conn.readLoop, conn.srv.wg)
 	asyncDo(conn.handleLoop, conn.srv.wg)
-	<-conn.closed
+	select {
+	case <-conn.closed:
+	case <-conn.srv.closed:
+	}
 	conn.srv.Handler.Disconnect(conn)
 }
 

@@ -57,7 +57,7 @@ func (srv *UDPServer) Shutdown(ctx context.Context) (err error) {
 	close(srv.closed)
 	finish := make(chan struct{})
 	go func() {
-		srv.wg.Done()
+		srv.wg.Wait()
 		close(finish)
 	}()
 	select {
@@ -73,19 +73,20 @@ func (srv *UDPServer) Close() (err error) {
 }
 
 func (srv *UDPServer) loop() (err error) {
-	srv.wg.Add(1)
-	defer srv.wg.Done()
+	// srv.wg.Add(1)
+	// defer srv.wg.Done()
 	buf := make([]byte, srv.MaxDatagramSize)
 	for {
 		n, addr, err := srv.listener.ReadFrom(buf)
+		if err != nil {
+			// if ok {
+			// 	conn.close()
+			// }
+			break
+		}
 		val, ok := srv.conns.LoadOrStore(addr.Network(), newUDPConn(srv, addr))
 		conn := val.(*UDPConn)
-		if err != nil {
-			if ok {
-				conn.close()
-			}
-			continue
-		}
+
 		if !ok {
 			go conn.loop()
 		}
