@@ -84,7 +84,7 @@ func (srv *UDPServer) loop() (err error) {
 			// }
 			break
 		}
-		val, ok := srv.conns.LoadOrStore(addr.Network(), newUDPConn(srv, addr))
+		val, ok := srv.conns.LoadOrStore(addr.String(), newUDPConn(srv, addr))
 		conn := val.(*UDPConn)
 
 		if !ok {
